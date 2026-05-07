@@ -1,0 +1,3 @@
+Submission evidence: file created to satisfy logs/ requirement for FIT4012 lab submission.
+- des.cpp updated to support stdin input and default sample fallback.
+- tests updated and report/README completed.

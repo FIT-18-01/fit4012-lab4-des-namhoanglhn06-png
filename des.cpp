@@ -396,12 +396,22 @@ public:
     
 // Main function
 int main() {
-    // Example plaintext (128 bits, 2 blocks)
-    string plaintext = "000100100011010001010110011110001001101010111100110111101111000100010010001101000101011001111000010011010101111001101111011110001";
-    
-    // Example key (64 bits)
-    string key = "0001001100110100010101110111100110011011101111001101111111110001";
-    
+    string plaintext;
+    string key;
+
+    cout << "Enter plaintext bit string (or press Enter to use default sample):\n";
+    if (!getline(cin, plaintext) || plaintext.empty()) {
+        plaintext = "000100100011010001010110011110001001101010111100110111101111000100010010001101000101011001111000010011010101111001101111011110001";
+        key = "0001001100110100010101110111100110011011101111001101111111110001";
+        cerr << "No stdin plaintext provided, using default sample plaintext and key." << endl;
+    } else {
+        cout << "Enter 64-bit key string (or press Enter to use default sample):\n";
+        if (!getline(cin, key) || key.empty()) {
+            key = "0001001100110100010101110111100110011011101111001101111111110001";
+            cerr << "No stdin key provided, using default sample key." << endl;
+        }
+    }
+
     // Generate round keys
     KeyGenerator keygen(key);
     keygen.generateRoundKeys(); 
@@ -414,7 +424,7 @@ int main() {
     // Encrypt multi
     string ciphertext = des.encrypt_multi(plaintext);
     
-    // Wrong key
+    // Wrong key for negative test
     string wrong_key = "0001001100110100010101110111100110011011101111001101111111110010";
     KeyGenerator wrong_keygen(wrong_key);
     wrong_keygen.generateRoundKeys();
