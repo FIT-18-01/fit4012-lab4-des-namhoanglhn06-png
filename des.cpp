@@ -396,52 +396,36 @@ public:
     
 // Main function
 int main() {
-    string plaintext;
-    string key;
-
-    cout << "Enter plaintext bit string (or press Enter to use default sample):\n";
-    if (!getline(cin, plaintext) || plaintext.empty()) {
-        plaintext = "000100100011010001010110011110001001101010111100110111101111000100010010001101000101011001111000010011010101111001101111011110001";
-        key = "0001001100110100010101110111100110011011101111001101111111110001";
-        cerr << "No stdin plaintext provided, using default sample plaintext and key." << endl;
-    } else {
-        cout << "Enter 64-bit key string (or press Enter to use default sample):\n";
-        if (!getline(cin, key) || key.empty()) {
-            key = "0001001100110100010101110111100110011011101111001101111111110001";
-            cerr << "No stdin key provided, using default sample key." << endl;
-        }
-    }
-
-    // Generate round keys
-    KeyGenerator keygen(key);
-    keygen.generateRoundKeys(); 
-    
-    vector<string> roundKeys = keygen.getRoundKeys();
-    
-    // Create DES object
-    DES des(roundKeys);
-    
-    // Encrypt multi
-    string ciphertext = des.encrypt_multi(plaintext);
-    
-    // Wrong key for negative test
-    string wrong_key = "0001001100110100010101110111100110011011101111001101111111110010";
-    KeyGenerator wrong_keygen(wrong_key);
-    wrong_keygen.generateRoundKeys();
-    vector<string> wrong_roundKeys = wrong_keygen.getRoundKeys();
-    DES wrong_des(wrong_roundKeys);
-    
-    // Decrypt with wrong key
-    string decrypted = wrong_des.decrypt_multi(ciphertext);
-    
-    // Check that decrypted != plaintext
-    if (plaintext != decrypted) {
-        cout << "Wrong key test successful: Decryption failed as expected." << endl;
-        return 0;
-    } else {
-        cout << "Wrong key test failed: Decryption succeeded unexpectedly." << endl;
+    string mode_line;
+    if (!getline(cin, mode_line)) {
         return 1;
     }
+
+    int mode = 0;
+    try {
+        mode = stoi(mode_line);
+    } catch (...) {
+        return 1;
+    }
+
+    if (mode != 1) {
+        return 1;
+    }
+
+    string plaintext;
+    string key;
+    if (!getline(cin, plaintext) || !getline(cin, key)) {
+        return 1;
+    }
+
+    KeyGenerator keygen(key);
+    keygen.generateRoundKeys();
+    vector<string> roundKeys = keygen.getRoundKeys();
+    DES des(roundKeys);
+
+    string ciphertext = des.encrypt_multi(plaintext);
+    cout << ciphertext << endl;
+    return 0;
 }
 
     
