@@ -57,33 +57,28 @@ cmake --build build
 
 ## 3. Input / Đầu vào
 
-TODO_STUDENT: Mô tả rõ đầu vào của chương trình sau khi em hoàn thiện bài lab.
+Chương trình nhận đầu vào là chuỗi bit nhị phân (binary string) cho plaintext và key.
 
-Gợi ý nên nêu:
-- plaintext đang được nhập như thế nào
-- key đang được nhập như thế nào
-- chương trình nhận 1 block hay nhiều block
-- định dạng dữ liệu là chuỗi bit, chuỗi ký tự hay file
+- Plaintext: Chuỗi bit có độ dài bất kỳ, sẽ được chia thành các block 64-bit và pad với bit 0 nếu cần.
+- Key: Chuỗi bit 64-bit cho DES, hoặc 3 key 64-bit cho TripleDES.
+- Chương trình hỗ trợ cả single block và multi-block.
+- Định dạng dữ liệu: Chuỗi bit nhị phân.
 
 ## 4. Output / Đầu ra
 
-TODO_STUDENT: Mô tả rõ đầu ra của chương trình.
-
-Gợi ý nên nêu:
-- ciphertext hiển thị ra sao
-- có in round keys hay không
-- có hỗ trợ giải mã hay không
-- với TripleDES thì đầu ra gồm những gì
+- Ciphertext: In ra chuỗi bit nhị phân của ciphertext.
+- Round keys: In ra 16 round keys trong quá trình tạo key.
+- Hỗ trợ giải mã: Có, với hàm decrypt và decrypt_multi.
+- Với TripleDES: Sử dụng 3 key, thực hiện encrypt-decrypt-encrypt.
 
 ## 5. Padding đang dùng
 
-TODO_STUDENT: Giải thích cơ chế padding em dùng.
+Padding bằng cách thêm bit 0 vào cuối cho đến khi độ dài chia hết cho 64.
 
-Gợi ý:
-- nếu plaintext dài hơn 64 bit thì chia block như thế nào
-- nếu thiếu bit thì pad bằng `0` ra sao
-- hạn chế của zero padding là gì
-- vì sao cách này chỉ phù hợp cho bài học nhập môn, không phải thiết kế an toàn hoàn chỉnh trong thực tế
+- Nếu plaintext dài hơn 64 bit: Chia thành các block 64-bit.
+- Nếu thiếu bit: Pad bằng '0' cho đến đủ 64 bit.
+- Hạn chế: Không an toàn cho thực tế vì dễ bị tấn công padding oracle, chỉ phù hợp cho bài học nhập môn.
+- Vì sao không phù hợp thực tế: Zero padding không có cách để phân biệt padding và dữ liệu thực, có thể dẫn đến việc mất dữ liệu khi unpad sai.
 
 ## 6. Tests bắt buộc
 

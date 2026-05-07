@@ -1,17 +1,15 @@
-# Report 1 page - Lab 4 DES / TripleDES
-
 ## Mục tiêu
 
-TODO_STUDENT: Viết ngắn gọn mục tiêu của bài lab.
+Triển khai thuật toán DES và TripleDES hoàn chỉnh, bao gồm mã hóa và giải mã, hỗ trợ multi-block với padding, và các test case cần thiết.
 
 ## Cách làm / Method
 
-TODO_STUDENT: Mô tả em đã làm gì với file code gốc, bổ sung những chức năng nào, cấu trúc chương trình ra sao.
+Bắt đầu từ code gốc chỉ có mã hóa DES single block. Thêm hàm giải mã bằng cách sử dụng round keys theo thứ tự ngược lại. Thêm padding zero cho multi-block. Triển khai TripleDES với 3 key. Viết các test script để kiểm tra các chức năng.
 
 ## Kết quả / Result
 
-TODO_STUDENT: Trình bày kết quả chạy chương trình, test chính, trường hợp đúng/sai, ví dụ ciphertext hoặc round-trip.
+Chương trình có thể mã hóa và giải mã DES single và multi-block, TripleDES. Các test roundtrip, multi-block, tamper, wrong key đều pass. Ciphertext mẫu khớp với giá trị mong đợi.
 
 ## Kết luận / Conclusion
 
-TODO_STUDENT: Nêu điều học được, hạn chế hiện tại, và hướng mở rộng như decryption / TripleDES / multi-block.
+Học được cách triển khai DES từ đầu, bao gồm key generation, Feistel rounds, S-boxes. Hạn chế: padding zero không an toàn, chỉ dùng cho học thuật. Hướng mở rộng: thêm CBC mode, PKCS7 padding, hỗ trợ file input.

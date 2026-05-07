@@ -14,6 +14,29 @@ int convert_binary_to_decimal(const string& binary) {
     return stoi(binary, nullptr, 2);
 }
 
+// Helper function: Pad binary string to multiple of 64 bits with zeros
+string pad_zeros(const string& input) {
+    int len = input.length();
+    int pad_len = (64 - (len % 64)) % 64;
+    return input + string(pad_len, '0');
+}
+
+// Helper function: Remove zero padding
+string unpad_zeros(const string& input) {
+    size_t last_one = input.find_last_of('1');
+    if (last_one == string::npos) return "";
+    return input.substr(0, last_one + 1);
+}
+
+// Helper function: Split string into 64-bit blocks
+vector<string> split_blocks(const string& input) {
+    vector<string> blocks;
+    for (size_t i = 0; i < input.length(); i += 64) {
+        blocks.push_back(input.substr(i, 64));
+    }
+    return blocks;
+}
+
 // Helper function: XOR two binary strings
 string Xor(const string& a, const string& b) {
     string result = "";
@@ -274,14 +297,107 @@ class DES {
             // Apply inverse initial permutation outside class
             string ciphertext = inverse_initial_permutation(combined_text);
     
+        return ciphertext;
+        }
+
+        string decrypt(const string& input) {
+            // Apply initial permutation
+            string perm = initial_permutation(input);
+
+            // Split into left and right parts
+            string left = perm.substr(0, 32);
+            string right = perm.substr(32, 32);
+
+            // 16 Feistel rounds with keys in reverse order
+            for (int i = 15; i >= 0; i--) {
+                // Expand right half to 48 bits
+                string right_expanded = "";
+                for (int j = 0; j < 48; j++) {
+                    right_expanded += right[expansion_table[j] - 1];
+                }
+
+                // XOR with round key (reverse order)
+                string xored = Xor(round_keys[i], right_expanded);
+
+                // S-box substitution
+                string res = "";
+                for (int j = 0; j < 8; j++) {
+                    string row1 = xored.substr(j * 6, 1) + xored.substr(j * 6 + 5, 1);
+                    int row = convert_binary_to_decimal(row1);
+
+                    string col1 = xored.substr(j * 6 + 1, 4);
+                    int col = convert_binary_to_decimal(col1);
+
+                    int val = substition_boxes[j][row][col];
+                    res += convert_decimal_to_binary(val);
+                }
+
+                // Permutation after S-box
+                string perm2 = "";
+                for (int j = 0; j < 32; j++) {
+                    perm2 += res[permutation_tab[j] - 1];
+                }
+
+                // XOR permuted result with left, then swap
+                string new_right = Xor(perm2, left);
+                left = right;
+                right = new_right;
+            }
+
+            // Swap final halves
+            string combined_text = right + left;
+
+            // Apply inverse initial permutation
+            string plaintext = inverse_initial_permutation(combined_text);
+
+            return plaintext;
+        }
+
+        string encrypt_multi(const string& input) {
+            string padded = pad_zeros(input);
+            vector<string> blocks = split_blocks(padded);
+            string ciphertext = "";
+            for (const auto& block : blocks) {
+                ciphertext += encrypt(block);
+            }
             return ciphertext;
         }
+
+        string decrypt_multi(const string& input) {
+            vector<string> blocks = split_blocks(input);
+            string plaintext = "";
+            for (const auto& block : blocks) {
+                plaintext += decrypt(block);
+            }
+            return unpad_zeros(plaintext);
+        }
+    };
+    
+class TripleDES {
+private:
+    DES des1, des2, des3;
+
+public:
+    TripleDES(const vector<string>& keys1, const vector<string>& keys2, const vector<string>& keys3)
+        : des1(keys1), des2(keys2), des3(keys3) {}
+
+    string encrypt(const string& input) {
+        string temp = des1.encrypt_multi(input);
+        temp = des2.decrypt_multi(temp);
+        return des3.encrypt_multi(temp);
+    }
+
+    string decrypt(const string& input) {
+        string temp = des3.decrypt_multi(input);
+        temp = des2.encrypt_multi(temp);
+        return des1.decrypt_multi(temp);
+    }
 };
     
 // Main function
 int main() {
-    // Example plaintext (64 bits)
-    string plaintext = "0001001000110100010101100111100010011010101111001101111011110001";
+    // Example plaintext (128 bits, 2 blocks)
+    string plaintext = "000100100011010001010110011110001001101010111100110111101111000100010010001101000101011001111000010011010101111001101111011110001";
     
     // Example key (64 bits)
     string key = "0001001100110100010101110111100110011011101111001101111111110001";
@@ -295,12 +411,27 @@ int main() {
     // Create DES object
     DES des(roundKeys);
     
-    // Encrypt
-    string ciphertext = des.encrypt(plaintext);
+    // Encrypt multi
+    string ciphertext = des.encrypt_multi(plaintext);
     
-    cout << "Ciphertext: " << ciphertext << endl;
+    // Wrong key
+    string wrong_key = "0001001100110100010101110111100110011011101111001101111111110010";
+    KeyGenerator wrong_keygen(wrong_key);
+    wrong_keygen.generateRoundKeys();
+    vector<string> wrong_roundKeys = wrong_keygen.getRoundKeys();
+    DES wrong_des(wrong_roundKeys);
     
-    return 0;
+    // Decrypt with wrong key
+    string decrypted = wrong_des.decrypt_multi(ciphertext);
+    
+    // Check that decrypted != plaintext
+    if (plaintext != decrypted) {
+        cout << "Wrong key test successful: Decryption failed as expected." << endl;
+        return 0;
+    } else {
+        cout << "Wrong key test failed: Decryption succeeded unexpectedly." << endl;
+        return 1;
+    }
 }
 
     

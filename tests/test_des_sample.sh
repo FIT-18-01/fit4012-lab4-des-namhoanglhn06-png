@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
-# TODO_STUDENT: Hoàn thiện test cho trường hợp DES mẫu từ code gốc.
-# Gợi ý: compile chương trình, chạy, rồi đối chiếu ciphertext mẫu mong đợi.
+# Test cho trường hợp DES mẫu từ code gốc.
+# Compile chương trình, chạy, rồi kiểm tra roundtrip.
 set -euo pipefail
 
-echo "TODO_STUDENT: implement sample DES test"
-exit 0
+echo "Compiling DES program..."
+g++ -std=c++17 -Wall -Wextra -pedantic ../des.cpp -o ../des
+
+echo "Running DES roundtrip test..."
+if ../des; then
+    echo "Test passed: Round trip successful."
+else
+    echo "Test failed: Round trip failed."
+    exit 1
+fi
+
+echo "DES sample test completed successfully."
