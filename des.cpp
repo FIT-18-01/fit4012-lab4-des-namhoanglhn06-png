@@ -408,24 +408,64 @@ int main() {
         return 1;
     }
 
-    if (mode != 1) {
-        return 1;
+    if (mode == 1) {
+        string plaintext;
+        string key;
+        if (!getline(cin, plaintext) || !getline(cin, key)) {
+            return 1;
+        }
+
+        KeyGenerator keygen(key);
+        keygen.generateRoundKeys();
+        vector<string> roundKeys = keygen.getRoundKeys();
+        DES des(roundKeys);
+
+        string ciphertext = des.encrypt_multi(plaintext);
+        cout << ciphertext << endl;
+        return 0;
+    } else if (mode == 3) {
+        string plaintext;
+        string key1;
+        string key2;
+        string key3;
+        if (!getline(cin, plaintext) || !getline(cin, key1) || !getline(cin, key2) || !getline(cin, key3)) {
+            return 1;
+        }
+
+        KeyGenerator keygen1(key1);
+        keygen1.generateRoundKeys();
+        KeyGenerator keygen2(key2);
+        keygen2.generateRoundKeys();
+        KeyGenerator keygen3(key3);
+        keygen3.generateRoundKeys();
+
+        TripleDES tdes(keygen1.getRoundKeys(), keygen2.getRoundKeys(), keygen3.getRoundKeys());
+        string ciphertext = tdes.encrypt(plaintext);
+        cout << ciphertext << endl;
+        return 0;
+    } else if (mode == 4) {
+        string ciphertext;
+        string key1;
+        string key2;
+        string key3;
+        if (!getline(cin, ciphertext) || !getline(cin, key1) || !getline(cin, key2) || !getline(cin, key3)) {
+            return 1;
+        }
+
+        KeyGenerator keygen1(key1);
+        keygen1.generateRoundKeys();
+        KeyGenerator keygen2(key2);
+        keygen2.generateRoundKeys();
+        KeyGenerator keygen3(key3);
+        keygen3.generateRoundKeys();
+
+        TripleDES tdes(keygen1.getRoundKeys(), keygen2.getRoundKeys(), keygen3.getRoundKeys());
+        string plaintext = tdes.decrypt(ciphertext);
+        cout << plaintext << endl;
+        return 0;
     }
 
-    string plaintext;
-    string key;
-    if (!getline(cin, plaintext) || !getline(cin, key)) {
-        return 1;
-    }
-
-    KeyGenerator keygen(key);
-    keygen.generateRoundKeys();
-    vector<string> roundKeys = keygen.getRoundKeys();
-    DES des(roundKeys);
-
-    string ciphertext = des.encrypt_multi(plaintext);
-    cout << ciphertext << endl;
-    return 0;
+    return 1;
 }
 
     
